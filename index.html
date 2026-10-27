@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Веселая Математика с Мишуткой</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        /* МИЛЫЕ ПАСТЕЛЬНЫЕ ЦВЕТА */
+        :root {
+            --bg: #fdf5e6;
+            --pink: #ffb6c1;
+            --blue: #87ceeb;
+            --green: #98fb98;
+            --yellow: #fffacd;
+            --purple: #dda0dd;
+            --text: #4a4a4a;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--bg) 0%, #ffe4e1 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* --- ПЕРСОНАЖ --- */
+        .character-container {
+            position: relative;
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .character {
+            font-size: 100px;
+            animation: bounce 2s infinite ease-in-out;
+            filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.1));
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* Облачко с текстом */
+        .speech-bubble {
+            background: #fff;
+            padding: 15px 25px;
+            border-radius: 20px;
+            font-size: 24px;
+            font-weight: 900;
+            color: #ff69b4;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-top: 10px;
+            position: relative;
+            text-align: center;
+            border: 3px solid #ffb6c1;
+        }
+        .speech-bubble::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 0 15px 15px 15px;
+            border-style: solid;
+            border-color: transparent transparent #fff transparent;
+        }
+
+        /* --- ЭКРАНЫ --- */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+        .screen.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        /* --- МЕНЮ (Выбор возраста) --- */
+        h1 {
+            font-size: 36px;
+            color: #ff69b4;
+            text-shadow: 2px 2px 0px #fff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .age-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-age {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: none;
+            font-size: 24px;
+            font-weight: 900;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.1);
+            transition: transform 0.1s, box-shadow 0.1s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .btn-age:active {
+            transform: translateY(8px);
+            box-shadow: none;
+        }
+        .btn-age span { font-size: 40px; margin-bottom: 5px; }
+
+        .btn-4 { background: var(--pink); }
+        .btn-5 { background: var(--blue); }
+        .btn-6 { background: var(--green); }
+
+        /* --- ИГРОВОЙ ЭКРАН --- */
+        .game-board {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 4px solid var(--yellow);
+        }
+
+        .question-display {
+            font-size: 60px;
+            font-weight: 900;
+            color: #ff69b4;
+            margin: 10px 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-speak {
+            background: var(--purple);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #9932cc;
+            transition: transform 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .btn-speak:active { transform: translateY(5px); box-shadow: none; }
+
+        /* Варианты ответов */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .btn-option {
+            background: var(--yellow);
+            color: #ff8c00;
+            border: 3px solid #ffd700;
+            border-radius: 20px;
+            padding: 20px;
+            font-size: 40px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #ffd700;
+            transition: all 0.1s;
+        }
+        .btn-option:hover { background: #fff5b8; }
+        .btn-option:active { transform: translateY(6px); box-shadow: none; }
+
+        /* Кнопка назад */
+        .btn-back {
+            margin-top: 20px;
+            background: #ccc;
+            color: #666;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #999;
+        }
+        .btn-back:active { transform: translateY(4px); box-shadow: none; }
+
+        /* Звездочки за правильный ответ */
+        #stars-container {
+            position: absolute;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 100;
+        }
+        .star {
+            position: absolute;
+            font-size: 40px;
+            animation: fallStar 1.5s linear forwards;
+        }
+        @keyframes fallStar {
+            0% { transform: translateY(-50px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="stars-container"></div>
+
+    <!-- ПЕРСОНАЖ -->
+    <div class="character-container">
+        <div class="character" id="character-emoji">🐻</div>
+        <div class="speech-bubble" id="speech-text">Привет!</div>
+    </div>
+
+    <!-- 1. ЭКРАН ВЫБОРА ВОЗРАСТА -->
+    <div id="menu-screen" class="screen active">
+        <h1>Сколько тебе лет?</h1>
+        <div class="age-buttons">
+            <button class="btn-age btn-4" onclick="selectAge(4)"><span>🎈</span>4</button>
+            <button class="btn-age btn-5" onclick="selectAge(5)"><span>🚀</span>5</button>
+            <button class="btn-age btn-6" onclick="selectAge(6)"><span>🦖</span>6</button>
+        </div>
+    </div>
+
+    <!-- 2. ИГРОВОЙ ЭКРАН -->
+    <div id="game-screen" class="screen">
+        <div class="game-board">
+            <div class="question-display">
+                <span id="question-text">1 + 1</span>
+                <button class="btn-speak" onclick="speakCurrentQuestion()" title="Послушать">🔊</button>
+            </div>
+            <div class="options-grid" id="options-container">
+                <!-- Сюда генерируются кнопки с ответами -->
+            </div>
+        </div>
+        <button class="btn-back" onclick="backToMenu()">← Назад в меню</button>
+    </div>
+
+    <script>
+        // --- ГОЛОСОВОЙ ДВИЖОК (TEXT-TO-SPEECH) ---
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                // Отменяем предыдущую речь, если она еще идет
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'ru-RU'; // Русский язык
+                utterance.rate = 0.85;    // Чуть медленнее, чтобы ребенок понял
+                utterance.pitch = 1.3;    // Высокий, милый голос
+                
+                // Ищем женский/детский голос, если доступен
+                const voices = window.speechSynthesis.getVoices();
+                const ruVoice = voices.find(v => v.lang === 'ru-RU');
+                if (ruVoice) utterance.voice = ruVoice;
+
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Переменные игры
+        let currentAge = 4;
+        let correctAnswer = 0;
+        let currentQuestionString = "";
+        
+        // Элементы DOM
+        const menuScreen = document.getElementById('menu-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const speechText = document.getElementById('speech-text');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+
+        // Изменение эмоции персонажа
+        function setCharacter(emoji) {
+            document.getElementById('character-emoji').textContent = emoji;
+        }
+
+        // Всплывающий текст в облачке
+        function say(text) {
+            speechText.textContent = text;
+        }
+
+        // Запуск игры (выбор возраста)
+        function selectAge(age) {
+            currentAge = age;
+            menuScreen.classList.remove('active');
+            gameScreen.classList.add('active');
+            
+            say(`Ура! Мне ${age} лет! Давай считать!`);
+            speak(`Отлично! Тебе ${age}. Начинаем!`);
+            setCharacter('🐻');
+            
+            // Небольшая задержка перед первым вопросом, чтобы персонаж договорил
+            setTimeout(generateQuestion, 2500);
+        }
+
+        // Возврат в меню
+        function backToMenu() {
+            window.speechSynthesis.cancel();
+            gameScreen.classList.remove('active');
+            menuScreen.classList.add('active');
+            say("Выбери возраст!");
+            speak("Выбери, сколько тебе лет");
+            setCharacter('🐻');
+        }
+
+        // Генерация вопроса
+        function generateQuestion() {
+            let a, b, op, answer;
+            
+            if (currentAge === 4) {
+                // Сложение до 5 (совсем просто)
+                a = Math.floor(Math.random() * 4) + 1; // 1-4
+                b = Math.floor(Math.random() * (5 - a)) + 1; // сумма не больше 5
+                op = '+';
+                answer = a + b;
+            } else if (currentAge === 5) {
+                // Сложение до 10
+                a = Math.floor(Math.random() * 5) + 1; // 1-5
+                b = Math.floor(Math.random() * (10 - a)) + 1; // сумма не больше 10
+                op = '+';
+                answer = a + b;
+            } else {
+                // 6 лет: Плюс и минус
+                if (Math.random() > 0.5) {
+                    // Сложение до 10
+                    a = Math.floor(Math.random() * 8) + 1;
+                    b = Math.floor(Math.random() * (10 - a)) + 1;
+                    op = '+';
+                    answer = a + b;
+                } else {
+                    // Вычитание
+                    a = Math.floor(Math.random() * 8) + 2; // 2-9
+                    b = Math.floor(Math.random() * (a - 1)) + 1; // меньше a
+                    op = '-';
+                    answer = a - b;
+                }
+            }
+
+            correctAnswer = answer;
+            currentQuestionString = `${a} ${op} ${b}`;
+            questionText.textContent = `${a} ${op} ${b} = ?`;
+            
+            // Озвучиваем вопрос (например: "Два плюс один")
+            let speakText = `${a} ${op === '+' ? 'плюс' : 'минус'} ${b}`;
+            
+            // Очищаем варианты
+            optionsContainer.innerHTML = '';
+            
+            // Генерируем 3 неправильных ответа, близких к правильному
+            let options = [answer];
+            while (options.length < 4) {
+                let wrong = answer + (Math.floor(Math.random() * 5) - 2); // +-2 от правильного
+                if (wrong !== answer && wrong >= 0 && !options.includes(wrong)) {
+                    options.push(wrong);
+                }
+            }
+            
+            // Перемешиваем
+            options.sort(() => Math.random() - 0.5);
+
+            // Создаем кнопки
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.classList.add('btn-option');
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(opt, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            say("Послушай и посчитай!");
+            
+            // Озвучиваем пример с задержкой 0.5 сек
+            setTimeout(() => speak(speakText), 500);
+        }
+
+        // Озвучить текущий вопрос повторно (по кнопке)
+        function speakCurrentQuestion() {
+            if (currentQuestionString) {
+                let speakText = currentQuestionString.replace('+', 'плюс').replace('-', 'минус');
+                speak(speakText);
+            }
+        }
+
+        // Проверка ответа
+        function checkAnswer(selected, btnElement) {
+            if (selected === correctAnswer) {
+                // Правильно!
+                btnElement.style.background = '#98fb98'; // Зеленый
+                btnElement.style.borderColor = '#32cd32';
+                btnElement.style.color = '#006400';
+                
+                say("Ура! Правильно! 🎉");
+                speak("Ура! Правильно!");
+                setCharacter('🐻🎉');
+                
+                createStars(); // Звездопад
+
+                // Следующий вопрос через 2 секунды
+                setTimeout(generateQuestion, 2000);
+                
+            } else {
+                // Неправильно
+                btnElement.style.background = '#ffb6c1'; // Красный
+                btnElement.style.borderColor = '#ff69b4';
+                btnElement.style.color = '#8b0000';
+                
+                say("Ой, попробуй еще разок! 😊");
+                speak("Ой, попробуй еще разок");
+                setCharacter('🐻🤔');
+                
+                // Тряска кнопки
+                btnElement.animate([
+                    { transform: 'translateX(0)' },
+                    { transform: 'translateX(-10px)' },
+                    { transform: 'translateX(10px)' },
+                    { transform: 'translateX(0)' }
+                ], { duration: 300 });
+            }
+        }
+
+        // Эффект падающих звездочек
+        function createStars() {
+            const container = document.getElementById('stars-container');
+            for(let i=0; i<15; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.textContent = ['⭐', '🌟', '✨', '🎈'][Math.floor(Math.random()*4)];
+                star.style.left = Math.random() * 100 + 'vw';
+                star.style.top = '-50px';
+                star.style.animationDelay = Math.random() * 0.5 + 's';
+                container.appendChild(star);
+                
+                setTimeout(() => star.remove(), 2000);
+            }
+        }
+
+        // Прогружаем голоса при запуске (чтобы браузер их подтянул)
+        window.speechSynthesis.onvoiceschanged = () => {
+            window.speechSynthesis.getVoices();
+        };
+
+    </script>
+</body>
+</html>
