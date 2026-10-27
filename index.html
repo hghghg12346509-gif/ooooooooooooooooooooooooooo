@@ -6,7 +6,6 @@
     <title>Веселая Математика с Мишуткой</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        /* МИЛЫЕ ПАСТЕЛЬНЫЕ ЦВЕТА */
         :root {
             --bg: #fdf5e6;
             --pink: #ffb6c1;
@@ -15,600 +14,526 @@
             --yellow: #fffacd;
             --purple: #dda0dd;
             --text: #4a4a4a;
+            --gold: #ffd700;
         }
 
-        * {
-            box-sizing: border-box;
-            font-family: 'Nunito', sans-serif;
-            user-select: none;
-        }
+        * { box-sizing: border-box; font-family: 'Nunito', sans-serif; user-select: none; }
 
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background: linear-gradient(135deg, var(--bg) 0%, #ffe4e1 100%);
-            color: var(--text);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow: hidden;
+            color: var(--text); min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
+            overflow: hidden; position: relative;
         }
 
-        /* --- УКРАШЕНИЯ ПО КРАЯМ --- */
-        .side-decor {
-            position: fixed; top: 0; height: 100vh; width: 80px;
-            display: flex; flex-direction: column; justify-content: space-around;
-            align-items: center; font-size: 40px; pointer-events: none;
-            z-index: 1; opacity: 0.7;
+        /* --- ФОН --- */
+        #bg-animations { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; overflow: hidden; }
+        .bg-emoji { position: absolute; font-size: 120px; opacity: 0.1; animation: bgFloat infinite ease-in-out alternate; filter: blur(1px); }
+        @keyframes bgFloat { 0% { transform: translate(0, 0) rotate(-15deg) scale(1); } 100% { transform: translate(30px, -40px) rotate(15deg) scale(1.1); } }
+
+        /* --- ВЕРХНЯЯ ПАНЕЛЬ (МОНЕТЫ) --- */
+        #top-bar {
+            position: absolute; top: 15px; right: 20px;
+            background: white; padding: 10px 20px; border-radius: 20px;
+            font-size: 24px; font-weight: 900; color: #d4af37;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 3px solid var(--gold);
+            display: flex; align-items: center; gap: 10px; z-index: 100;
         }
-        .side-decor.left { left: 10px; }
-        .side-decor.right { right: 10px; }
-        .floating-item { animation: float 4s infinite ease-in-out alternate; }
-        .floating-item:nth-child(even) { animation-duration: 5s; animation-delay: 1s; }
-        @keyframes float { 0% { transform: translateY(0) rotate(-10deg); } 100% { transform: translateY(-30px) rotate(10deg); } }
 
         /* --- ПЕРСОНАЖ --- */
-        .character-container {
-            position: relative; margin-top: 20px; display: flex;
-            flex-direction: column; align-items: center; z-index: 10;
-        }
-        .character {
-            font-size: 90px; animation: bounce 2s infinite ease-in-out;
-            filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.1)); transition: transform 0.3s;
-        }
+        .character-container { position: relative; margin-top: 30px; display: flex; flex-direction: column; align-items: center; z-index: 10; }
+        .character { font-size: 90px; animation: bounce 2s infinite ease-in-out; filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.1)); }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-
         .speech-bubble {
-            background: #fff; padding: 15px 25px; border-radius: 20px;
-            font-size: 22px; font-weight: 900; color: #ff69b4;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-top: 10px;
-            position: relative; text-align: center; border: 3px solid #ffb6c1;
-            min-width: 250px;
+            background: #fff; padding: 15px 25px; border-radius: 20px; font-size: 20px; font-weight: 900; color: #ff69b4;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-top: 10px; position: relative; text-align: center; border: 3px solid #ffb6c1; min-width: 250px;
         }
         .speech-bubble::before {
-            content: ''; position: absolute; top: -15px; left: 50%;
-            transform: translateX(-50%); border-width: 0 15px 15px 15px;
-            border-style: solid; border-color: transparent transparent #fff transparent;
+            content: ''; position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            border-width: 0 15px 15px 15px; border-style: solid; border-color: transparent transparent #fff transparent;
         }
 
         /* --- ЭКРАНЫ --- */
-        .screen {
-            display: none; flex-direction: column; align-items: center;
-            width: 100%; max-width: 600px; padding: 20px; z-index: 10;
-            animation: fadeIn 0.5s ease;
-        }
+        .screen { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 650px; padding: 15px; z-index: 10; animation: fadeIn 0.4s ease-out; }
         .screen.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- МЕНЮ ВОЗРАСТА И УРОВНЕЙ --- */
-        h1 { font-size: 36px; color: #ff69b4; text-shadow: 2px 2px 0px #fff; margin-bottom: 20px; text-align: center; }
+        h1 { font-size: 32px; color: #ff69b4; text-shadow: 2px 2px 0px #fff; margin-bottom: 20px; text-align: center; }
 
+        /* --- КНОПКИ --- */
         .age-buttons, .level-buttons { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
-
         .btn-age {
-            width: 100px; height: 100px; border-radius: 50%; border: none;
-            font-size: 22px; font-weight: 900; color: white; cursor: pointer;
-            box-shadow: 0 8px 0 rgba(0,0,0,0.1); transition: transform 0.1s;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            width: 100px; height: 100px; border-radius: 50%; border: none; font-size: 22px; font-weight: 900; color: white; cursor: pointer;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.1); transition: transform 0.1s; display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
         .btn-age:active { transform: translateY(8px); box-shadow: none; }
         .btn-age span { font-size: 35px; margin-bottom: 5px; }
-        .btn-4 { background: var(--pink); }
-        .btn-5 { background: var(--blue); }
-        .btn-6 { background: var(--green); }
+        .btn-4 { background: var(--pink); } .btn-5 { background: var(--blue); } .btn-6 { background: var(--green); }
 
-        .btn-level {
-            background: white; color: #ff69b4; border: 3px solid #ffb6c1;
-            padding: 15px 30px; border-radius: 20px; font-size: 24px;
-            font-weight: 900; cursor: pointer; box-shadow: 0 6px 0 #ffb6c1;
-            transition: transform 0.1s; min-width: 200px; text-align: center;
+        .btn-level, .btn-action {
+            background: white; color: #ff69b4; border: 3px solid #ffb6c1; padding: 15px 30px; border-radius: 20px;
+            font-size: 20px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 0 #ffb6c1; transition: transform 0.1s; text-align: center;
         }
-        .btn-level:hover { background: #ffe4e1; }
-        .btn-level:active { transform: translateY(6px); box-shadow: none; }
-
-        /* --- ШКАЛА ПРОГРЕССА --- */
-        .progress-container {
-            width: 90%; max-width: 500px; height: 25px; background: #e0e0e0;
-            border-radius: 15px; margin-bottom: 15px; border: 3px solid white;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); overflow: hidden; display: none;
-        }
-        .progress-container.active { display: block; }
-        .progress-fill {
-            height: 100%; width: 0%; background: linear-gradient(90deg, #98fb98, #32cd32);
-            border-radius: 15px; transition: width 0.3s ease;
-        }
-
-        /* --- ИГРОВОЙ ЭКРАН --- */
-        .game-board {
-            background: white; border-radius: 30px; padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%;
-            display: flex; flex-direction: column; align-items: center;
-            border: 4px solid var(--yellow);
-        }
-        .question-display { font-size: 60px; font-weight: 900; color: #ff69b4; margin: 0 0 25px 0; }
-
-        .options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 400px; }
-        .btn-option {
-            background: var(--yellow); color: #ff8c00; border: 3px solid #ffd700;
-            border-radius: 20px; padding: 20px; font-size: 40px; font-weight: 900;
-            cursor: pointer; box-shadow: 0 6px 0 #ffd700; transition: all 0.1s;
-        }
-        .btn-option:hover { background: #fff5b8; }
-        .btn-option:active { transform: translateY(6px); box-shadow: none; }
+        .btn-level:hover, .btn-action:hover { background: #ffe4e1; }
+        .btn-level:active, .btn-action:active { transform: translateY(6px); box-shadow: none; }
 
         .btn-nav {
-            margin-top: 20px; background: #ccc; color: #666; border: none;
-            padding: 10px 20px; border-radius: 15px; font-size: 18px;
-            font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #999;
-            display: none;
+            margin-top: 15px; background: #ccc; color: #666; border: none; padding: 10px 20px; border-radius: 15px;
+            font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #999; display: none;
         }
         .btn-nav.active { display: block; }
         .btn-nav:active { transform: translateY(4px); box-shadow: none; }
 
-        /* --- ЭКРАН РЕЗУЛЬТАТОВ --- */
+        /* --- ИГРА --- */
+        .progress-container {
+            width: 90%; max-width: 500px; height: 22px; background: #e0e0e0; border-radius: 15px; margin-bottom: 15px;
+            border: 3px solid white; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); overflow: hidden; display: none;
+        }
+        .progress-container.active { display: block; }
+        .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #98fb98, #32cd32); border-radius: 15px; transition: width 0.3s ease; }
+
+        .game-board {
+            background: white; border-radius: 30px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%; display: flex; flex-direction: column; align-items: center; border: 4px solid var(--yellow);
+        }
+        .question-display { font-size: 55px; font-weight: 900; color: #ff69b4; margin: 0 0 20px 0; }
+        .options-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 400px; }
+        .btn-option {
+            background: var(--yellow); color: #ff8c00; border: 3px solid #ffd700; border-radius: 20px; padding: 15px;
+            font-size: 36px; font-weight: 900; cursor: pointer; box-shadow: 0 6px 0 #ffd700; transition: all 0.1s;
+        }
+        .btn-option:hover { background: #fff5b8; }
+        .btn-option:active { transform: translateY(6px); box-shadow: none; }
+
+        /* --- РЕЗУЛЬТАТЫ И АНЕКДОТ --- */
         .result-board {
-            background: white; border-radius: 30px; padding: 40px 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;
-            border: 4px solid var(--purple); width: 100%;
+            background: white; border-radius: 30px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center; border: 4px solid var(--purple); width: 100%;
         }
-        .result-board h2 { color: #ff69b4; font-size: 32px; margin-top: 0; }
-        .stats-row { display: flex; justify-content: space-around; margin: 30px 0; }
-        .stat-box { background: #fdf5e6; padding: 20px; border-radius: 20px; border: 2px dashed #ccc; width: 45%; }
-        .stat-box span { display: block; font-size: 40px; font-weight: 900; margin-bottom: 10px; }
-        .correct-stat { color: #32cd32; }
-        .wrong-stat { color: #ff3333; }
-
-        .btn-restart {
-            background: var(--purple); color: white; border: none;
-            padding: 15px 30px; border-radius: 20px; font-size: 20px;
-            font-weight: 900; cursor: pointer; box-shadow: 0 6px 0 #9932cc;
-            transition: transform 0.1s;
+        .result-board h2 { color: #ff69b4; font-size: 30px; margin-top: 0; }
+        .stats-row { display: flex; justify-content: space-around; margin: 20px 0; }
+        .stat-box { background: #fdf5e6; padding: 15px; border-radius: 20px; border: 2px dashed #ccc; width: 45%; }
+        .stat-box span { display: block; font-size: 36px; font-weight: 900; margin-bottom: 5px; }
+        .correct-stat { color: #32cd32; } .wrong-stat { color: #ff3333; }
+        
+        .reward-box {
+            background: #fffacd; padding: 15px; border-radius: 15px; margin: 15px 0;
+            border: 2px solid var(--gold); font-size: 24px; font-weight: 900; color: #d4af37;
         }
-        .btn-restart:active { transform: translateY(6px); box-shadow: none; }
+        
+        .joke-box {
+            background: #e0f7fa; padding: 20px; border-radius: 20px; margin-top: 20px;
+            border-left: 6px solid var(--blue); text-align: left; font-size: 18px; line-height: 1.5;
+        }
+        .joke-title { font-weight: 900; color: var(--blue); margin-bottom: 5px; font-size: 16px; text-transform: uppercase; }
 
-        /* --- САЛЮТ --- */
+        /* --- МАГАЗИН --- */
+        .shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; margin-top: 20px; }
+        .shop-item {
+            background: white; padding: 15px; border-radius: 20px; text-align: center;
+            border: 3px solid var(--purple); box-shadow: 0 6px 0 var(--purple);
+        }
+        .shop-item .emoji { font-size: 50px; margin-bottom: 10px; }
+        .shop-item .name { font-weight: 900; font-size: 18px; color: #ff69b4; margin-bottom: 5px; }
+        .shop-item .price { font-weight: 900; color: #d4af37; font-size: 20px; margin-bottom: 10px; }
+        .shop-btn {
+            background: var(--green); color: #006400; border: none; padding: 10px; border-radius: 10px;
+            font-weight: 900; cursor: pointer; width: 100%; box-shadow: 0 4px 0 #32cd32;
+        }
+        .shop-btn:active { transform: translateY(4px); box-shadow: none; }
+        .shop-btn.owned { background: #ddd; color: #888; box-shadow: none; cursor: default; }
+        .shop-btn.equipped { background: var(--blue); color: white; box-shadow: 0 4px 0 #5f9ea0; }
+
+        /* САЛЮТ */
         #particles-container { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; overflow: hidden; z-index: 100; }
         .particle { position: absolute; font-size: 30px; animation: explode 1s ease-out forwards; }
-        @keyframes explode {
-            0% { transform: translate(0, 0) scale(0.5); opacity: 1; }
-            100% { transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(180deg); opacity: 0; }
-        }
+        @keyframes explode { 0% { transform: translate(0, 0) scale(0.5); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(180deg); opacity: 0; } }
 
     </style>
 </head>
 <body>
 
+    <div id="top-bar">🪙 <span id="coin-display">0</span></div>
+
+    <div id="bg-animations"></div>
     <div id="particles-container"></div>
 
-    <!-- УКРАШЕНИЯ -->
-    <div class="side-decor left">
-        <div class="floating-item">🎈</div>
-        <div class="floating-item">🌈</div>
-        <div class="floating-item">⭐</div>
-        <div class="floating-item">🎨</div>
-    </div>
-    <div class="side-decor right">
-        <div class="floating-item">🦄</div>
-        <div class="floating-item">☁️</div>
-        <div class="floating-item">🍭</div>
-        <div class="floating-item">🌸</div>
-    </div>
-
-    <!-- ПЕРСОНАЖ -->
     <div class="character-container">
         <div class="character" id="character-emoji">🐻</div>
         <div class="speech-bubble" id="speech-text">Привет! Давай играть!</div>
     </div>
 
-    <!-- 1. ЭКРАН ВОЗРАСТА -->
+    <!-- ЭКРАН ВОЗРАСТА -->
     <div id="age-screen" class="screen active">
         <h1>Сколько тебе лет?</h1>
         <div class="age-buttons">
-            <button class="btn-age btn-4" onclick="selectAge(4)"><span>🎈</span>4</button>
-            <button class="btn-age btn-5" onclick="selectAge(5)"><span>🚀</span>5</button>
-            <button class="btn-age btn-6" onclick="selectAge(6)"><span>🦖</span>6</button>
+            <button class="btn-age btn-4" onmouseenter="playSound('hover')" onclick="selectAge(4)"><span>🎈</span>4</button>
+            <button class="btn-age btn-5" onmouseenter="playSound('hover')" onclick="selectAge(5)"><span>🚀</span>5</button>
+            <button class="btn-age btn-6" onmouseenter="playSound('hover')" onclick="selectAge(6)"><span>🦖</span>6</button>
         </div>
+        <button class="btn-action" style="margin-top: 30px; background: var(--purple); color: white; border-color: var(--purple); box-shadow: 0 6px 0 #9932cc;" onmouseenter="playSound('hover')" onclick="openShop()">🛍️ Магазин питомцев</button>
     </div>
 
-    <!-- 2. ЭКРАН УРОВНЕЙ -->
+    <!-- ЭКРАН УРОВНЕЙ -->
     <div id="level-screen" class="screen">
         <h1 id="level-title">Выбери уровень</h1>
-        <div class="level-buttons" id="level-buttons-container">
-            <!-- Кнопки уровней генерируются в JS -->
-        </div>
-        <button class="btn-nav active" style="margin-top: 30px;" onclick="backToAge()">← Назад</button>
+        <div class="level-buttons" id="level-buttons-container"></div>
+        <button class="btn-nav active" style="margin-top: 30px;" onmouseenter="playSound('hover')" onclick="backToAge()">← Назад</button>
     </div>
 
-    <!-- 3. ИГРОВОЙ ЭКРАН -->
+    <!-- ИГРОВОЙ ЭКРАН -->
     <div id="game-screen" class="screen">
         <div class="progress-container" id="progress-container">
             <div class="progress-fill" id="progress-fill"></div>
         </div>
-
         <div class="game-board">
             <div class="question-display" id="question-text">1 + 1 = ?</div>
             <div class="options-grid" id="options-container"></div>
         </div>
-        
         <div style="display: flex; gap: 15px; margin-top: 20px;">
-            <button class="btn-nav active" onclick="backToLevels()">← К уровням</button>
-            <button class="btn-nav active" style="background:#ffb6c1; color:#8b0000; box-shadow: 0 4px 0 #ff69b4;" onclick="backToAge()">В начало</button>
+            <button class="btn-nav active" onmouseenter="playSound('hover')" onclick="backToLevels()">← К уровням</button>
         </div>
     </div>
 
-    <!-- 4. ЭКРАН РЕЗУЛЬТАТОВ -->
+    <!-- ЭКРАН РЕЗУЛЬТАТОВ -->
     <div id="result-screen" class="screen">
         <div class="result-board">
             <h2>Уровень пройден!</h2>
             <div style="font-size: 60px;" id="result-emoji">🏆</div>
             
             <div class="stats-row">
-                <div class="stat-box">
-                    <span class="correct-stat" id="correct-count">0</span>
-                    Правильно
-                </div>
-                <div class="stat-box">
-                    <span class="wrong-stat" id="wrong-count">0</span>
-                    Ошибок
-                </div>
+                <div class="stat-box"><span class="correct-stat" id="correct-count">0</span>Правильно</div>
+                <div class="stat-box"><span class="wrong-stat" id="wrong-count">0</span>Ошибок</div>
             </div>
 
-            <button class="btn-restart" onclick="backToLevels()">Выбрать другой уровень</button>
+            <div class="reward-box" id="reward-box">
+                Награда: <span id="reward-coins">0</span> 🪙
+            </div>
+
+            <div class="joke-box" id="joke-box">
+                <div class="joke-title">Анекдот от Мишутки (для взрослых):</div>
+                <div id="joke-text"></div>
+            </div>
+
+            <button class="btn-restart" style="margin-top: 20px;" onmouseenter="playSound('hover')" onclick="backToLevels()">Выбрать другой уровень</button>
         </div>
     </div>
 
+    <!-- ЭКРАН МАГАЗИНА -->
+    <div id="shop-screen" class="screen">
+        <h1>Магазин питомцев</h1>
+        <p style="text-align: center; font-size: 18px;">Копи монетки и покупай новых друзей!</p>
+        <div class="shop-grid" id="shop-grid"></div>
+        <button class="btn-nav active" style="margin-top: 30px;" onmouseenter="playSound('hover')" onclick="backToAge()">← Назад</button>
+    </div>
+
     <script>
-        // --- ЗВУКОВОЙ ДВИЖОК ---
-        let audioCtx;
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // --- ДАННЫЕ ---
+        const jokes = [
+            "Вовочка спрашивает: — Мама, а почему у кошки глаза зеленые? — Потому что она ела зеленый горошек. — А почему тогда у папы глаза красные?",
+            "— Доктор, у меня проблема: я забываю всё на свете! — И как давно это у вас? — Что именно?",
+            "— Папа, а почему у рыб нет шерсти? — Потому что они под водой живут, им там и так мокро!",
+            "Вовочка приходит в школу с фингалом. Учительница: — Что случилось? — Я упал. — А почему ссадина на лбу? — Так я же падал с лестницы!",
+            "— Мама, а слоны боятся мышей? — Нет, сынок, они же большие. — А мыши слонов? — Тоже нет. — А чего они тогда бегают друг от друга? — Просто играют в догонялки!"
+        ];
+
+        const pets = [
+            { id: 'bear', name: 'Мишутка', emoji: '🐻', price: 0 },
+            { id: 'cat', name: 'Котик', emoji: '🐱', price: 50 },
+            { id: 'dog', name: 'Собачка', emoji: '🐶', price: 50 },
+            { id: 'bunny', name: 'Зайка', emoji: '🐰', price: 80 },
+            { id: 'fox', name: 'Лисичка', emoji: '🦊', price: 80 },
+            { id: 'panda', name: 'Панда', emoji: '🐼', price: 120 },
+            { id: 'dragon', name: 'Дракончик', emoji: '🐲', price: 200 }
+        ];
+
+        // --- СОСТОЯНИЕ (Сохранение в браузере) ---
+        let coins = parseInt(localStorage.getItem('mathCoins')) || 0;
+        let currentPetId = localStorage.getItem('mathPet') || 'bear';
+        let ownedPets = JSON.parse(localStorage.getItem('mathOwnedPets')) || ['bear']; // Мишка есть по умолчанию
+
+        // --- ЭЛЕМЕНТЫ ---
+        const coinDisplay = document.getElementById('coin-display');
+        const charEmoji = document.getElementById('character-emoji');
+        const speechText = document.getElementById('speech-text');
+
+        // Обновление интерфейса
+        function updateUI() {
+            coinDisplay.textContent = coins;
+            const pet = pets.find(p => p.id === currentPetId) || pets[0];
+            charEmoji.textContent = pet.emoji;
         }
 
+        // --- ЗВУКИ ---
+        let audioCtx;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        document.body.addEventListener('click', initAudio, { once: true });
+
         function playSound(type) {
-            initAudio();
+            if (!audioCtx) return;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain); gain.connect(audioCtx.destination);
             const now = audioCtx.currentTime;
 
-            if (type === 'correct') {
-                // Веселое "Ура" (восходящая мелодия)
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(400, now);
-                osc.frequency.setValueAtTime(600, now + 0.1);
-                osc.frequency.setValueAtTime(800, now + 0.2);
-                osc.frequency.setValueAtTime(1000, now + 0.3);
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-                osc.start(now); osc.stop(now + 0.5);
+            if (type === 'hover') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+                gain.gain.setValueAtTime(0.05, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'correct') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.setValueAtTime(600, now + 0.1); osc.frequency.setValueAtTime(800, now + 0.2); osc.frequency.setValueAtTime(1000, now + 0.3);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4); osc.start(now); osc.stop(now + 0.4);
             } else if (type === 'wrong') {
-                // Смешное "Дун" (низкий, падающий звук)
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, now);
-                osc.frequency.linearRampToValueAtTime(80, now + 0.3);
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-                osc.start(now); osc.stop(now + 0.3);
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(80, now + 0.3);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.3); osc.start(now); osc.stop(now + 0.3);
+            } else if (type === 'coin') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(988, now); osc.frequency.setValueAtTime(1319, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4); osc.start(now); osc.stop(now + 0.4);
+            } else if (type === 'win') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(523.25, now); osc.frequency.setValueAtTime(659.25, now + 0.15); osc.frequency.setValueAtTime(783.99, now + 0.3); osc.frequency.setValueAtTime(1046.50, now + 0.45);
+                gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.7); osc.start(now); osc.stop(now + 0.7);
             } else if (type === 'click') {
                 osc.type = 'square'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(400, now + 0.05);
-                gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-                osc.start(now); osc.stop(now + 0.05);
-            } else if (type === 'win') {
-                // Фанфары в конце
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(523.25, now);
-                osc.frequency.setValueAtTime(659.25, now + 0.15);
-                osc.frequency.setValueAtTime(783.99, now + 0.3);
-                osc.frequency.setValueAtTime(1046.50, now + 0.45);
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.8);
-                osc.start(now); osc.stop(now + 0.8);
+                gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05); osc.start(now); osc.stop(now + 0.05);
             }
         }
 
-        // --- ПЕРЕМЕННЫЕ ИГРЫ ---
-        const TOTAL_QUESTIONS = 10;
-        
-        let currentAge = 4;
-        let currentLevel = 1;
-        let correctAnswer = 0;
-        
-        let questionCount = 0;
-        let correctCount = 0;
-        let wrongCount = 0;
-        
-        // DOM Элементы
-        const ageScreen = document.getElementById('age-screen');
-        const levelScreen = document.getElementById('level-screen');
-        const gameScreen = document.getElementById('game-screen');
-        const resultScreen = document.getElementById('result-screen');
-        
-        const speechText = document.getElementById('speech-text');
-        const questionText = document.getElementById('question-text');
-        const optionsContainer = document.getElementById('options-container');
-        
-        const progressContainer = document.getElementById('progress-container');
-        const progressFill = document.getElementById('progress-fill');
-        
-        function setCharacter(emoji) { document.getElementById('character-emoji').textContent = emoji; }
         function say(text) { speechText.textContent = text; }
 
-        // --- ЛОГИКА ЭКРАНОВ ---
-        function selectAge(age) {
+        // --- ГЕНЕРАЦИЯ ФОНА ---
+        const bgEmojis = ['🔢', '➕', '➖', '🎈', '🧸', '⭐', '☁️', '🎉'];
+        for (let i = 0; i < 12; i++) {
+            const el = document.createElement('div'); el.classList.add('bg-emoji');
+            el.textContent = bgEmojis[Math.floor(Math.random() * bgEmojis.length)];
+            el.style.left = Math.random() * 90 + 'vw'; el.style.top = Math.random() * 90 + 'vh';
+            el.style.animationDuration = (4 + Math.random() * 4) + 's'; el.style.animationDelay = (Math.random() * 2) + 's';
+            el.style.fontSize = (80 + Math.random() * 70) + 'px';
+            document.getElementById('bg-animations').appendChild(el);
+        }
+
+        // --- НАВИГАЦИЯ ---
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            document.getElementById('progress-container').classList.remove('active');
+        }
+
+        function backToAge() { playSound('click'); switchScreen('age-screen'); say("Выбери возраст!"); updateUI(); }
+        function backToLevels() { playSound('click'); switchScreen('level-screen'); say("Выбери уровень!"); }
+
+        // --- МАГАЗИН ---
+        function openShop() {
+            playSound('click'); switchScreen('shop-screen');
+            say("Смотри, кого можно купить!");
+            renderShop();
+        }
+
+        function renderShop() {
+            const grid = document.getElementById('shop-grid');
+            grid.innerHTML = '';
+            
+            pets.forEach(pet => {
+                const isOwned = ownedPets.includes(pet.id);
+                const isEquipped = currentPetId === pet.id;
+                
+                const card = document.createElement('div');
+                card.classList.add('shop-item');
+                
+                let btnHtml = '';
+                if (isEquipped) {
+                    btnHtml = `<button class="shop-btn equipped">Надето</button>`;
+                } else if (isOwned) {
+                    btnHtml = `<button class="shop-btn" onclick="equipPet('${pet.id}')">Надеть</button>`;
+                } else {
+                    btnHtml = `<button class="shop-btn" onclick="buyPet('${pet.id}', ${pet.price})">Купить за ${pet.price} 🪙</button>`;
+                }
+
+                card.innerHTML = `
+                    <div class="emoji">${pet.emoji}</div>
+                    <div class="name">${pet.name}</div>
+                    ${btnHtml}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function buyPet(petId, price) {
+            if (coins >= price) {
+                coins -= price;
+                ownedPets.push(petId);
+                currentPetId = petId;
+                
+                localStorage.setItem('mathCoins', coins);
+                localStorage.setItem('mathPet', currentPetId);
+                localStorage.setItem('mathOwnedPets', JSON.stringify(ownedPets));
+                
+                playSound('coin');
+                say("Ура! Новый друг!");
+                updateUI();
+                renderShop();
+            } else {
+                playSound('wrong');
+                say("Не хватает монеток! Играй еще!");
+            }
+        }
+
+        function equipPet(petId) {
             playSound('click');
-            currentAge = age;
+            currentPetId = petId;
+            localStorage.setItem('mathPet', currentPetId);
+            updateUI();
+            renderShop();
+            say("Классный выбор!");
+        }
+
+        // --- ИГРА ---
+        const TOTAL_QUESTIONS = 10;
+        let currentAge = 4, currentLevel = 1, correctAnswer = 0, questionCount = 0, correctCount = 0, wrongCount = 0;
+
+        function selectAge(age) {
+            playSound('click'); currentAge = age;
+            switchScreen('level-screen');
+            const container = document.getElementById('level-buttons-container'); container.innerHTML = '';
             
-            ageScreen.classList.remove('active');
-            levelScreen.classList.add('active');
-            
-            const container = document.getElementById('level-buttons-container');
-            container.innerHTML = '';
-            
-            let levelCount = 3; // По умолчанию 3 уровня
-            if (age === 5) levelCount = 4; // Для 5 лет 4 уровня
+            let levelCount = 3;
+            if (age === 5) levelCount = 4;
+            if (age === 6) levelCount = 5; // ТЕПЕРЬ ДЛЯ 6 ЛЕТ 5 УРОВНЕЙ!
             
             document.getElementById('level-title').textContent = `Тебе ${age}. Выбери уровень:`;
             say(`Отлично! Тебе ${age} лет.`);
-            setCharacter('🐻');
 
             for (let i = 1; i <= levelCount; i++) {
-                const btn = document.createElement('button');
-                btn.classList.add('btn-level');
-                btn.textContent = `Уровень ${i}`;
-                btn.onclick = () => selectLevel(i);
+                const btn = document.createElement('button'); btn.classList.add('btn-level'); btn.textContent = `Уровень ${i}`;
+                btn.onmouseenter = () => playSound('hover'); btn.onclick = () => selectLevel(i);
                 container.appendChild(btn);
             }
         }
 
         function selectLevel(level) {
-            playSound('click');
-            currentLevel = level;
-            
-            questionCount = 0;
-            correctCount = 0;
-            wrongCount = 0;
-            
-            levelScreen.classList.remove('active');
-            resultScreen.classList.remove('active');
-            gameScreen.classList.add('active');
-            
-            progressContainer.classList.add('active');
-            progressFill.style.width = '0%';
-            
+            playSound('click'); currentLevel = level;
+            questionCount = 0; correctCount = 0; wrongCount = 0;
+            switchScreen('game-screen');
+            document.getElementById('progress-container').classList.add('active');
+            document.getElementById('progress-fill').style.width = '0%';
             say(`Уровень ${level}! Погнали!`);
-            setCharacter('🐻');
-            
             generateQuestion();
         }
 
-        function backToAge() {
-            playSound('click');
-            gameScreen.classList.remove('active');
-            levelScreen.classList.remove('active');
-            resultScreen.classList.remove('active');
-            ageScreen.classList.add('active');
-            
-            progressContainer.classList.remove('active');
-            say("Выбери возраст!");
-            setCharacter('🐻');
-        }
-
-        function backToLevels() {
-            playSound('click');
-            gameScreen.classList.remove('active');
-            resultScreen.classList.remove('active');
-            levelScreen.classList.add('active');
-            
-            progressContainer.classList.remove('active');
-            say("Выбери уровень!");
-            setCharacter('🐻');
-        }
-
-        // --- ГЕНЕРАЦИЯ ВОПРОСОВ ---
         function generateQuestion() {
-            if (questionCount >= TOTAL_QUESTIONS) {
-                showResults();
-                return;
-            }
-
-            progressFill.style.width = `${(questionCount / TOTAL_QUESTIONS) * 100}%`;
+            if (questionCount >= TOTAL_QUESTIONS) { showResults(); return; }
+            document.getElementById('progress-fill').style.width = `${(questionCount / TOTAL_QUESTIONS) * 100}%`;
 
             let a, b, op, answer;
             
-            // ЛОГИКА В ЗАВИСИМОСТИ ОТ ВОЗРАСТА И УРОВНЯ
             if (currentAge === 4) {
-                if (currentLevel === 1) { // Сложение до 5
-                    a = Math.floor(Math.random() * 4) + 1;
-                    b = Math.floor(Math.random() * (5 - a)) + 1;
-                    op = '+'; answer = a + b;
-                } else if (currentLevel === 2) { // Сложение до 10
-                    a = Math.floor(Math.random() * 5) + 1;
-                    b = Math.floor(Math.random() * (10 - a)) + 1;
-                    op = '+'; answer = a + b;
-                } else { // Вычитание до 5
-                    a = Math.floor(Math.random() * 5) + 2;
-                    b = Math.floor(Math.random() * (a - 1)) + 1;
-                    op = '-'; answer = a - b;
-                }
+                if (currentLevel === 1) { a = Math.floor(Math.random() * 4) + 1; b = Math.floor(Math.random() * (5 - a)) + 1; op = '+'; answer = a + b; }
+                else if (currentLevel === 2) { a = Math.floor(Math.random() * 5) + 1; b = Math.floor(Math.random() * (10 - a)) + 1; op = '+'; answer = a + b; }
+                else { a = Math.floor(Math.random() * 5) + 2; b = Math.floor(Math.random() * (a - 1)) + 1; op = '-'; answer = a - b; }
             } 
             else if (currentAge === 5) {
-                if (currentLevel === 1) { // Сложение до 10
-                    a = Math.floor(Math.random() * 8) + 1;
-                    b = Math.floor(Math.random() * (10 - a)) + 1;
-                    op = '+'; answer = a + b;
-                } else if (currentLevel === 2) { // Вычитание до 10
-                    a = Math.floor(Math.random() * 9) + 2;
-                    b = Math.floor(Math.random() * (a - 1)) + 1;
-                    op = '-'; answer = a - b;
-                } else if (currentLevel === 3) { // Сложение до 20
-                    a = Math.floor(Math.random() * 10) + 1;
-                    b = Math.floor(Math.random() * (20 - a)) + 1;
-                    op = '+'; answer = a + b;
-                } else { // Вычитание до 20
-                    a = Math.floor(Math.random() * 15) + 5;
-                    b = Math.floor(Math.random() * (a - 1)) + 1;
-                    op = '-'; answer = a - b;
-                }
+                if (currentLevel === 1) { a = Math.floor(Math.random() * 8) + 1; b = Math.floor(Math.random() * (10 - a)) + 1; op = '+'; answer = a + b; }
+                else if (currentLevel === 2) { a = Math.floor(Math.random() * 9) + 2; b = Math.floor(Math.random() * (a - 1)) + 1; op = '-'; answer = a - b; }
+                else if (currentLevel === 3) { a = Math.floor(Math.random() * 10) + 1; b = Math.floor(Math.random() * (20 - a)) + 1; op = '+'; answer = a + b; }
+                else { a = Math.floor(Math.random() * 15) + 5; b = Math.floor(Math.random() * (a - 1)) + 1; op = '-'; answer = a - b; }
             } 
-            else { // 6 лет
-                if (currentLevel === 1) { // Микс до 20
-                    if (Math.random() > 0.5) {
-                        a = Math.floor(Math.random() * 10) + 1; b = Math.floor(Math.random() * (20 - a)) + 1; op = '+'; answer = a + b;
-                    } else {
-                        a = Math.floor(Math.random() * 15) + 5; b = Math.floor(Math.random() * (a - 1)) + 1; op = '-'; answer = a - b;
-                    }
-                } else if (currentLevel === 2) { // Микс до 50
-                    if (Math.random() > 0.5) {
-                        a = Math.floor(Math.random() * 25) + 1; b = Math.floor(Math.random() * (50 - a)) + 1; op = '+'; answer = a + b;
-                    } else {
-                        a = Math.floor(Math.random() * 40) + 10; b = Math.floor(Math.random() * (a - 1)) + 1; op = '-'; answer = a - b;
-                    }
-                } else { // Микс до 100
-                    if (Math.random() > 0.5) {
-                        a = Math.floor(Math.random() * 50) + 1; b = Math.floor(Math.random() * (100 - a)) + 1; op = '+'; answer = a + b;
-                    } else {
-                        a = Math.floor(Math.random() * 80) + 20; b = Math.floor(Math.random() * (a - 1)) + 1; op = '-'; answer = a - b;
-                    }
+            else { // 6 ЛЕТ - 5 УРОВНЕЙ
+                if (currentLevel === 1) { // До 20
+                    if (Math.random() > 0.5) { a = Math.floor(Math.random() * 10) + 1; b = Math.floor(Math.random() * (20 - a)) + 1; op = '+'; answer = a + b; }
+                    else { a = Math.floor(Math.random() * 15) + 5; b = Math.floor(Math.random() * (a - 1)) + 1; op = '-'; answer = a - b; }
+                } else if (currentLevel === 2) { // До 50
+                    if (Math.random() > 0.5) { a = Math.floor(Math.random() * 25) + 1; b = Math.floor(Math.random() * (50 - a)) + 1; op = '+'; answer = a + b; }
+                    else { a = Math.floor(Math.random() * 40) + 10; b = Math.floor(Math.random() * (a - 1)) + 1; op = '-'; answer = a - b; }
+                } else if (currentLevel === 3) { // Сложение до 100
+                    a = Math.floor(Math.random() * 50) + 10; b = Math.floor(Math.random() * (100 - a)) + 1; op = '+'; answer = a + b;
+                } else if (currentLevel === 4) { // Вычитание до 100
+                    a = Math.floor(Math.random() * 80) + 20; b = Math.floor(Math.random() * (a - 10)) + 10; op = '-'; answer = a - b;
+                } else { // Уровень 5: Смешанный хардкор (до 100)
+                    if (Math.random() > 0.5) { a = Math.floor(Math.random() * 60) + 20; b = Math.floor(Math.random() * (100 - a)) + 1; op = '+'; answer = a + b; }
+                    else { a = Math.floor(Math.random() * 80) + 15; b = Math.floor(Math.random() * (a - 5)) + 5; op = '-'; answer = a - b; }
                 }
             }
 
             correctAnswer = answer;
-            questionText.textContent = `${a} ${op} ${b} = ?`;
+            document.getElementById('question-text').textContent = `${a} ${op} ${b} = ?`;
+            const container = document.getElementById('options-container'); container.innerHTML = '';
             
-            optionsContainer.innerHTML = '';
-            
-            // Генерация вариантов (чем больше числа, тем шире разброс вариантов)
-            let options = [answer];
-            let spread = currentAge === 6 ? 10 : 3; 
+            let options = [answer]; let spread = currentAge === 6 ? 10 : 3; 
             while (options.length < 4) {
                 let wrong = answer + (Math.floor(Math.random() * (spread * 2)) - spread);
-                if (wrong !== answer && wrong >= 0 && !options.includes(wrong)) {
-                    options.push(wrong);
-                }
+                if (wrong !== answer && wrong >= 0 && !options.includes(wrong)) options.push(wrong);
             }
             options.sort(() => Math.random() - 0.5);
 
             options.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.classList.add('btn-option');
-                btn.textContent = opt;
+                const btn = document.createElement('button'); btn.classList.add('btn-option'); btn.textContent = opt;
                 btn.onclick = () => checkAnswer(opt, btn);
-                optionsContainer.appendChild(btn);
+                container.appendChild(btn);
             });
-
-            say(`Вопрос ${questionCount + 1} из ${TOTAL_QUESTIONS}`);
         }
 
-        // --- ПРОВЕРКА ОТВЕТА ---
         function checkAnswer(selected, btnElement) {
             const allButtons = document.querySelectorAll('.btn-option');
             allButtons.forEach(b => b.style.pointerEvents = 'none');
 
             if (selected === correctAnswer) {
-                playSound('correct'); // ЗВУК УРА
-                correctCount++;
-                questionCount++;
-                
-                btnElement.style.background = '#98fb98';
-                btnElement.style.borderColor = '#32cd32';
-                btnElement.style.color = '#006400';
-                
-                say("Ура! Правильно! 🎉");
-                setCharacter('🐻🎉');
-                createFireworks(btnElement);
-
-                setTimeout(() => {
-                    allButtons.forEach(b => b.style.pointerEvents = 'auto');
-                    generateQuestion();
-                }, 1500);
-                
+                playSound('correct'); correctCount++; questionCount++;
+                btnElement.style.background = '#98fb98'; btnElement.style.borderColor = '#32cd32'; btnElement.style.color = '#006400';
+                say("Ура! Правильно! 🎉"); createFireworks(btnElement);
+                setTimeout(() => { allButtons.forEach(b => b.style.pointerEvents = 'auto'); generateQuestion(); }, 1200);
             } else {
-                playSound('wrong'); // ЗВУК ДУН
-                wrongCount++;
-                
-                btnElement.style.background = '#ffb6c1';
-                btnElement.style.borderColor = '#ff69b4';
-                btnElement.style.color = '#8b0000';
-                btnElement.style.opacity = '0.5';
-                btnElement.style.pointerEvents = 'none';
-                
+                playSound('wrong'); wrongCount++;
+                btnElement.style.background = '#ffb6c1'; btnElement.style.borderColor = '#ff69b4'; btnElement.style.color = '#8b0000'; btnElement.style.opacity = '0.5'; btnElement.style.pointerEvents = 'none';
                 say("Ой, попробуй еще разок! 😊");
-                setCharacter('🐻🤔');
-                
-                btnElement.animate([
-                    { transform: 'translateX(0)' },
-                    { transform: 'translateX(-10px)' },
-                    { transform: 'translateX(10px)' },
-                    { transform: 'translateX(0)' }
-                ], { duration: 300 });
-
-                setTimeout(() => {
-                    allButtons.forEach(b => {
-                        if (b !== btnElement) b.style.pointerEvents = 'auto';
-                    });
-                }, 500);
+                btnElement.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-10px)' }, { transform: 'translateX(10px)' }, { transform: 'translateX(0)' }], { duration: 300 });
+                setTimeout(() => { allButtons.forEach(b => { if (b !== btnElement) b.style.pointerEvents = 'auto'; }); }, 500);
             }
         }
 
-        // --- РЕЗУЛЬТАТЫ ---
         function showResults() {
-            gameScreen.classList.remove('active');
-            resultScreen.classList.add('active');
-            progressContainer.classList.remove('active');
+            switchScreen('result-screen');
+            playSound('win');
             
-            playSound('win'); // ЗВУК ФАНФАР
-
+            // Начисление монет (чем лучше результат, тем больше монет)
+            const earnedCoins = correctCount * 5; // 5 монет за правильный ответ (макс 50)
+            coins += earnedCoins;
+            localStorage.setItem('mathCoins', coins);
+            
             document.getElementById('correct-count').textContent = correctCount;
             document.getElementById('wrong-count').textContent = wrongCount;
+            document.getElementById('reward-coins').textContent = earnedCoins;
+            
+            // Показ анекдота
+            const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
+            document.getElementById('joke-text').textContent = randomJoke;
             
             const score = correctCount / TOTAL_QUESTIONS;
-            if (score === 1) {
-                document.getElementById('result-emoji').textContent = "🏆🌟";
-                say("Ты настоящий гений!");
-                setCharacter('🐻👑');
-            } else if (score >= 0.7) {
-                document.getElementById('result-emoji').textContent = "🎉👏";
-                say("Отличная работа!");
-                setCharacter('🐻😊');
-            } else {
-                document.getElementById('result-emoji').textContent = "💪✨";
-                say("Хорошая попытка! Давай еще!");
-                setCharacter('🐻🤗');
-            }
+            if (score === 1) { document.getElementById('result-emoji').textContent = "🏆🌟"; say("Ты гений! Вот тебе монетки!"); }
+            else if (score >= 0.7) { document.getElementById('result-emoji').textContent = "🎉👏"; say("Отлично! Монетки твои!"); }
+            else { document.getElementById('result-emoji').textContent = "💪✨"; say("Хорошо! Смотри, сколько монет!"); }
             
             createFireworks(document.body, 30);
+            updateUI();
         }
 
-        // --- САЛЮТ ---
         function createFireworks(sourceElement, count = 15) {
             const container = document.getElementById('particles-container');
             const rect = sourceElement.getBoundingClientRect();
-            const startX = rect.left + rect.width / 2;
-            const startY = rect.top + rect.height / 2;
-
-            const emojis = ['⭐', '🌟', '✨', '🎈', '🎉', '💖', '🍬'];
-
+            const startX = rect.left + rect.width / 2; const startY = rect.top + rect.height / 2;
+            const emojis = ['⭐', '🌟', '✨', '🎈', '🎉', '💖', '🍬', '🪙'];
             for(let i = 0; i < count; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
+                const particle = document.createElement('div'); particle.classList.add('particle');
                 particle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                
-                particle.style.left = startX + 'px';
-                particle.style.top = startY + 'px';
-
-                const tx = (Math.random() - 0.5) * 600 + 'px';
-                const ty = (Math.random() - 0.5) * 600 + 'px';
-
-                particle.style.setProperty('--tx', tx);
-                particle.style.setProperty('--ty', ty);
+                particle.style.left = startX + 'px'; particle.style.top = startY + 'px';
+                particle.style.setProperty('--tx', (Math.random() - 0.5) * 600 + 'px');
+                particle.style.setProperty('--ty', (Math.random() - 0.5) * 600 + 'px');
                 particle.style.animationDelay = Math.random() * 0.2 + 's';
-
-                container.appendChild(particle);
-                setTimeout(() => particle.remove(), 1500);
+                container.appendChild(particle); setTimeout(() => particle.remove(), 1500);
             }
         }
 
+        // Инициализация
+        updateUI();
     </script>
 </body>
 </html>
