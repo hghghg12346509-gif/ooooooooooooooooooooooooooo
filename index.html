@@ -160,6 +160,26 @@
         .boost-tag { display: inline-block; margin-top: 6px; padding: 5px 12px; border-radius: 999px; font-weight: 900; font-size: 15px; background: #eaffdd; color: #2f8f3f; border: 2px solid #9fdf9f; }
         .boost-tag.epic { background: #f3e8ff; color: #7b3fc4; border-color: #d8b4fe; }
         .boost-tag.legend { background: #fff4d1; color: #b07800; border-color: #ffd66b; }
+        /* ❓ на яйце — кто оттуда вылупится */
+        .egg-card { position: relative; }
+        .egg-help { position: absolute; top: 10px; right: 10px; width: 46px; height: 46px; border-radius: 50%; border: 3px solid #fff; background: linear-gradient(160deg,#8fd3ff,#4aa3e0); color: white; font-size: 24px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 rgba(40,100,160,.4); transition: transform .12s; z-index: 3; font-family: 'Baloo 2', cursive; }
+        .egg-help:hover { transform: scale(1.15) rotate(8deg); }
+        .egg-help:active { transform: translateY(3px); }
+        .drop-chip { display: inline-flex; align-items: center; gap: 6px; margin: 4px; padding: 7px 13px; border-radius: 999px; font-weight: 800; font-size: 16px; background: #eaffdd; color: #2f8f3f; border: 2px solid #9fdf9f; }
+        .drop-chip.t-uncommon { background: #dff2ff; color: #14659f; border-color: #8ecdf2; }
+        .drop-chip.t-rare { background: #fdeef7; color: #a13b78; border-color: #f2b5d8; }
+        .drop-chip.t-epic { background: #f3e8ff; color: #7b3fc4; border-color: #d8b4fe; }
+        .drop-chip.t-legend { background: #fff4d1; color: #b07800; border-color: #ffd66b; }
+        .drop-chip.t-mythic { background: linear-gradient(135deg,#ffe28a,#ffb0d0,#c9a6ff); color: #6a2fa0; border-color: #fff; box-shadow: 0 0 10px rgba(255,180,80,.5); }
+        .egg-info-hint { text-align: center; font-weight: 900; color: #7a5fb8; margin-bottom: 10px; font-size: 17px; }
+        .egg-info-more { text-align: center; font-weight: 900; color: #a08cd0; margin-top: 8px; }
+        #egg-info-modal { position: fixed; inset: 0; background: rgba(30,20,60,.55); display: none; align-items: center; justify-content: center; z-index: 9999; }
+        #egg-info-modal.show { display: flex; }
+        .big-back-btn { font-family: 'Baloo 2', cursive; font-size: 26px; font-weight: 900; color: white; text-shadow: 0 2px 3px rgba(0,0,0,.25); background: linear-gradient(160deg,#ffb0d0,#ff6fa0); border: 4px solid #fff; border-radius: 999px; padding: 16px 44px; cursor: pointer; box-shadow: 0 6px 0 #d84470, 0 10px 24px rgba(0,0,0,.2); transition: transform .12s cubic-bezier(.34,1.56,.64,1); user-select: none; }
+        .big-back-btn:hover { transform: scale(1.07) rotate(-1deg); filter: brightness(1.06); }
+        .big-back-btn:active { transform: translateY(5px); box-shadow: 0 1px 0 #d84470; }
+        /* без друга — серый силуэт */
+        .character.no-pet { opacity: .45; filter: grayscale(1); }
 
         /* Питомцы в коллекции — крупные понятные кнопки */
         .pet-collect { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin: 14px 0; }
@@ -825,6 +845,15 @@
         </div>
     </div>
 
+    <!-- МОДАЛКА: кто вылупится из яйца (кнопка ❓) -->
+    <div id="egg-info-modal" onclick="if(event.target===this)closeEggInfoModal()">
+        <div class="modal-box">
+            <div class="modal-q" id="egg-info-title"></div>
+            <div id="egg-info-body" style="max-height:46vh; overflow-y:auto; text-align:center;"></div>
+            <div class="modal-btns"><button class="m-btn no" onclick="closeEggInfoModal()">👍 Понятно!</button></div>
+        </div>
+    </div>
+
     <!-- ПРОМОКОДЫ: правый нижний угол -->
     <div id="promo-box">
         <div id="promo-input-wrap">
@@ -959,9 +988,11 @@
             }
             return got;
         }
-        let currentPetId = localStorage.getItem('mathPet') || 'bear';
+        let currentPetId = localStorage.getItem('mathPet') || 'none';
         let ownedPets;
-        try { ownedPets = JSON.parse(localStorage.getItem('mathOwnedPets')) || ['bear']; } catch (e) { ownedPets = ['bear']; }
+        try { ownedPets = JSON.parse(localStorage.getItem('mathOwnedPets')) || []; } catch (e) { ownedPets = []; }
+        // Если сохранённый питомец не из коллекции — снимаем его (без друга множитель ×1.0)
+        if (!ownedPets.includes(currentPetId)) currentPetId = 'none';
 
         // --- ГЕНЕРАЦИЯ ФОНА ---
         const THEME_EMOJIS = {
@@ -1139,7 +1170,7 @@
             ['w1', 'w2', 'w3'].forEach(cls => {
                 const w = document.createElement('div');
                 w.className = 'wave ' + cls;
-                w.style.backgroundImage = `url("image/svg+xml,${WAVE_SVG}")`;
+                w.style.backgroundImage = `url("data:image/svg+xml,${WAVE_SVG}")`;
                 bg.appendChild(w);
             });
         })();
@@ -1268,7 +1299,33 @@
             { id: 'cat2', name: 'Кот-рыжик', emoji: '🐈', mult: 2.4, tier: 'legend' },
             { id: 'crab', name: 'Крабик-танк', emoji: '🦀', mult: 2.5, tier: 'legend' },
             { id: 'fairy', name: 'Фея-светлячок', emoji: '🧚', mult: 3.2, tier: 'mythic' },
-            { id: 'starpet', name: 'Звёздочка', emoji: '🌟', mult: 4.0, tier: 'mythic' }
+            { id: 'starpet', name: 'Звёздочка', emoji: '🌟', mult: 4.0, tier: 'mythic' },
+            // --- ЕЩЁ БОЛЬШЕ ДРУЗЕЙ (теперь их 65!) ---
+            { id: 'mole', name: 'Кротошка', emoji: '🐁', mult: 1.0, tier: 'common' },
+            { id: 'squirrel', name: 'Белчонка', emoji: '🐿️', mult: 1.1, tier: 'common' },
+            { id: 'donkey', name: 'Ослик', emoji: '', mult: 1.2, tier: 'common' },
+            { id: 'rooster', name: 'Петушок', emoji: '🐓', mult: 1.2, tier: 'common' },
+            { id: 'parrot', name: 'Попугайчик', emoji: '🦜', mult: 1.3, tier: 'uncommon' },
+            { id: 'swan', name: 'Лебедь', emoji: '🦢', mult: 1.3, tier: 'uncommon' },
+            { id: 'duck', name: 'Утенок', emoji: '🦆', mult: 1.4, tier: 'uncommon' },
+            { id: 'feather', name: 'Перышко', emoji: '🪶', mult: 1.4, tier: 'uncommon' },
+            { id: 'maple', name: 'Листик', emoji: '🍁', mult: 1.5, tier: 'uncommon' },
+            { id: 'ram', name: 'Баран', emoji: '🐏', mult: 1.5, tier: 'rare' },
+            { id: 'goose', name: 'Гак-Гак', emoji: '', mult: 1.6, tier: 'rare' },
+            { id: 'fly', name: 'Муха-звенелка', emoji: '🪰', mult: 1.6, tier: 'rare' },
+            { id: 'spider', name: 'Паучок-ткач', emoji: '🕷️', mult: 1.7, tier: 'rare' },
+            { id: 'scorp', name: 'Скорпиончик', emoji: '🦂', mult: 1.7, tier: 'rare' },
+            { id: 'beetle', name: 'Жук-силач', emoji: '🪲', mult: 1.8, tier: 'rare' },
+            { id: 'antman', name: 'Муравей-трудяга', emoji: '🐜', mult: 1.8, tier: 'epic' },
+            { id: 'puffer', name: 'Рыбка-шарик', emoji: '🐡', mult: 1.9, tier: 'epic' },
+            { id: 'shellpet', name: 'Ракушка', emoji: '🐚', mult: 1.9, tier: 'epic' },
+            { id: 'sunflower', name: 'Солнышко-цвет', emoji: '🌻', mult: 2.0, tier: 'epic' },
+            { id: 'mushroom', name: 'Грибочек', emoji: '🍄', mult: 2.1, tier: 'epic' },
+            { id: 'clover', name: 'Счастливый лист', emoji: '🍀', mult: 2.2, tier: 'legend' },
+            { id: 'catking', name: 'Кот-король', emoji: '😺', mult: 2.3, tier: 'legend' },
+            { id: 'zombie', name: 'Зомби-добрый', emoji: '🧟', mult: 2.4, tier: 'legend' },
+            { id: 'elf', name: 'Эльф-лучник', emoji: '🧝', mult: 2.5, tier: 'legend' },
+            { id: 'melody', name: 'Мелодия', emoji: '🎵', mult: 3.4, tier: 'mythic' }
         ];
         const TIER_NAMES = { common: 'Обычный', uncommon: 'Необычный', rare: 'Редкий', epic: 'Эпический', legend: 'Легендарный', mythic: 'МИФИЧЕСКИЙ!' };
 
@@ -1284,9 +1341,25 @@
             { id: 'forest',  name: 'Лесное яйцо',      emoji: '🍄', price: 520, pool: ['rare','epic'],                      desc: 'Выросло под грибочком — лесной друг!' },
             { id: 'ice',     name: 'Ледяное яйцо',     emoji: '❄️', price: 720, pool: ['epic','legend'],                    desc: 'Замёрзло, но внутри тепло!' },
             { id: 'moon',    name: 'Лунное яйцо',      emoji: '🌙', price: 800, pool: ['legend','mythic'],                  desc: 'Упало с неба — легенда или мечта!' },
-            { id: 'galaxy',  name: 'Галактическое яйцо', emoji: '🪐', price: 1100, pool: ['mythic'], galaxy: true,          desc: 'САМОЕ КРУТОЕ! Только МИФИЧЕСКИЕ друзья!' }
+            { id: 'galaxy',  name: 'Галактическое яйцо', emoji: '🪐', price: 1100, pool: ['mythic'], galaxy: true,          desc: 'САМОЕ КРУТОЕ! Только МИФИЧЕСКИЕ друзья!' },
+            { id: 'dust',    name: 'Пылинковое яйцо',  emoji: '✨', price: 150, pool: ['common'],          desc: 'Маленькое, но с искоркой!', tiers: ['common','common','common'] },
+            { id: 'croc',    name: 'Крокодилье яйцо',  emoji: '🥒', price: 200, pool: ['common','uncommon'], desc: 'Зубастик скоро вылупится!', tiers: ['common','common','common','common','uncommon','uncommon'] },
+            { id: 'fire',    name: 'Огненное яйцо',    emoji: '🔥', price: 580, pool: ['rare','epic'],     desc: 'Горячее! Редкие и эпические', tiers: ['rare','rare','rare','epic','epic'] },
+            { id: 'crystal', name: 'Хрустальное яйцо', emoji: '💎', price: 850, pool: ['epic','legend'],   desc: 'Прозрачное чудо: эпики и легенды', tiers: ['epic','epic','epic','legend','legend'] },
+            { id: 'storm',   name: 'Грозовое яйцо',    emoji: '⛈️', price: 1000, pool: ['legend','mythic'], desc: 'Гремит! Легенды и мечты', tiers: ['legend','legend','legend','mythic'] }
         ];
+        function eggDrops(egg) {
+            // список тех, кто может вылупиться (для кнопочки ❓)
+            const tiers = egg.tiers || egg.pool;
+            return pets.filter(p => tiers.includes(p.tier)).sort((a, b) => a.mult - b.mult);
+        }
         function rollPetFromEgg(egg) {
+            // если у яйца есть точный список tiers — выбираем честно из него
+            if (egg.tiers && egg.tiers.length) {
+                const tier = egg.tiers[Math.floor(Math.random() * egg.tiers.length)];
+                const sameTier = pets.filter(p => p.tier === tier);
+                return sameTier[Math.floor(Math.random() * sameTier.length)];
+            }
             const pool = pets.filter(p => egg.pool.includes(p.tier));
             // взвешиваем: чем круче тир внутри яйца — тем реже
             const w = { common: 40, uncommon: 26, rare: 18, epic: 10, legend: 5, mythic: 2 };
@@ -1426,14 +1499,21 @@
                 coinDisplay.classList.add('pop');
             }
             coinDisplay.textContent = coins;
-            const pet = pets.find(p => p.id === currentPetId) || pets[0];
-            currentPetName = pet.name;
-            charEmoji.textContent = pet.emoji;
-            gameChar.textContent = pet.emoji;
-            document.getElementById('result-char').textContent = pet.emoji;
-
-            // Меняем заголовок анекдота
-            document.getElementById('joke-title').textContent = `Анекдот от ${currentPetName}:`;
+            const pet = pets.find(p => p.id === currentPetId) || null;
+            if (pet) {
+                currentPetName = pet.name;
+                charEmoji.textContent = pet.emoji;
+                gameChar.textContent = pet.emoji;
+                document.getElementById('result-char').textContent = pet.emoji;
+                charEmoji.classList.remove('no-pet'); gameChar.classList.remove('no-pet');
+                document.getElementById('joke-title').textContent = `Анекдот от ${currentPetName}:`;
+            } else {
+                currentPetName = 'Никто';
+                charEmoji.textContent = '❓'; gameChar.textContent = '❓';
+                document.getElementById('result-char').textContent = '❓';
+                charEmoji.classList.add('no-pet'); gameChar.classList.add('no-pet');
+                document.getElementById('joke-title').textContent = 'Анекдоты появятся, когда ты заведёшь друга из яичка!';
+            }
 
             // Тема оформления: фон, эмодзи-дождь, волны — всё меняется сразу!
             if (currentTheme === 'meadow') document.body.removeAttribute('data-theme');
@@ -1679,6 +1759,7 @@
 
         // ================= СБРОС ПРОГРЕССА (с двойным подтверждением) =================
         let resetConfirmed = false;
+        let currentEggInfo = null;   // яйцо, чью кнопочку ❓ нажимали
         function openResetModal() {
             resetConfirmed = false;
             document.getElementById('reset-q').innerHTML =
@@ -1847,6 +1928,7 @@
                     if (egg.rainbow) card.classList.add('egg-rainbow');
                     card.onmouseenter = () => playSound('hover');
                     card.innerHTML = `
+                        <button class="egg-help" title="Кто может вылупиться?" onclick="showEggInfo('${egg.id}', event)">❓</button>
                         <div class="egg-emoji">${egg.emoji}</div>
                         <div class="name" style="font-size:20px;">${egg.name}</div>
                         <div class="theme-desc">${egg.desc}</div>
@@ -1869,7 +1951,7 @@
                     card.onmouseenter = () => playSound('hover');
                     let btnHtml = isEquipped ? `<button class="shop-btn equipped">✨ С тобой</button>`
                                              : `<button class="shop-btn" onclick="equipPet('${pet.id}')">Взять друга</button>`;
-                    card.innerHTML = `${isEquipped ? '<div class="badge">ДРУГ</div>' : ''}<div class="emoji">${pet.emoji}</div><div class="name">${pet.name}</div><div class="boost-tag ${pet.tier === 'mythic' || pet.tier === 'legend' ? 'legend' : pet.tier === 'epic' || pet.tier === 'rare' ? 'epic' : ''}💰 Монетки ×${pet.mult.toFixed(1)}</div>${btnHtml}`;
+                    card.innerHTML = `${isEquipped ? '<div class="badge">ДРУГ</div>' : ''}<div class="boost-tag ${pet.tier === 'mythic' || pet.tier === 'legend' ? 'legend' : pet.tier === 'epic' || pet.tier === 'rare' ? 'epic' : ''}">💰 Умножает доход на ×${pet.mult.toFixed(1)}</div><div class="emoji">${pet.emoji}</div><div class="name">${pet.name}</div>${btnHtml}`;
                     grid.appendChild(card);
                 });
             } else {
@@ -1894,6 +1976,11 @@
                     grid.appendChild(card);
                 });
             }
+            // крупная кнопка НАЗАД внизу магазина — сразу видно, куда выйти
+            const backBig = document.createElement('div');
+            backBig.style.cssText = 'grid-column:1/-1;display:flex;justify-content:center;margin-top:18px;';
+            backBig.innerHTML = `<button class="big-back-btn" onclick="backToMap()">🏡 НАЗАД на тропинку</button>`;
+            grid.appendChild(backBig);
         }
 
         // ПОКУПКА ЯЙЦА: списываем монетки → яйцо трясётся → БУМ, питомец!
@@ -1913,6 +2000,7 @@
                 localStorage.setItem('mathOwnedPets', JSON.stringify(ownedPets));
                 localStorage.setItem('mathPet', currentPetId);
                 card.classList.remove('hatching');
+                shopTab = 'collect';   // показываем новую коллекцию с множителями!
                 card.innerHTML = `
                     <div class="hatched-pet">${pet.emoji}</div>
                     <div class="name" style="font-size:20px;">${pet.name}</div>
@@ -1924,6 +2012,22 @@
                 say(`🐣 ${hello()}, из яйца вылупился ${pet.name}! Монетки теперь ×${pet.mult.toFixed(1)}!`);
             }, 1500);
         }
+
+        function showEggInfo(eggId, ev) {
+            if (ev) ev.stopPropagation();
+            initAudio(); playSound('click');
+            const egg = eggs.find(e => e.id === eggId); if (!egg) return;
+            currentEggInfo = egg;
+            const drops = eggDrops(egg);
+            const shown = drops.slice(0, 24);
+            document.getElementById('egg-info-title').innerHTML = `${egg.emoji} Кто может вылупиться из яйца «${egg.name}»?`;
+            document.getElementById('egg-info-body').innerHTML =
+                `<div class="egg-info-hint">Чем дороже яйцо — тем круче друзья внутри! 🐣</div>` +
+                shown.map(p => `<span class="drop-chip t-${p.tier}" title="${TIER_NAMES[p.tier]}">${p.emoji} ${p.name} · ×${p.mult.toFixed(1)}</span>`).join('') +
+                (drops.length > shown.length ? `<div class="egg-info-more">…и ещё ${drops.length - shown.length} друзей!</div>` : '');
+            document.getElementById('egg-info-modal').classList.add('show');
+        }
+        function closeEggInfoModal() { document.getElementById('egg-info-modal').classList.remove('show'); }
 
         function equipPet(petId) {
             playSound('click'); currentPetId = petId; localStorage.setItem('mathPet', currentPetId);
@@ -2317,7 +2421,9 @@
             playSound('win');
 
             // НАГРАДА: база урока (скудная!) + бонус за скорость, ВСЁ умножаем на БУСТ ПИТОМЦА!
-            const pet = pets.find(p => p.id === currentPetId) || pets[0];
+            const pet = pets.find(p => p.id === currentPetId);
+            const petE = pet ? pet.emoji : '❓', petN = pet ? pet.name : 'Никто';
+            const petT = pet ? TIER_NAMES[pet.tier] : 'друг не найден';
             const baseReward = currentLessonObj.reward || 8;
             const earnedCoins = Math.round((baseReward + timeBonus(elapsed)) * pet.mult);
             coins += earnedCoins;
@@ -2349,17 +2455,16 @@
 
             document.getElementById('reward-coins').textContent = earnedCoins;
             const boostLine = document.getElementById('reward-boost');
-            if (pet.mult > 1) {
-                boostLine.style.display = 'block';
-                // показываем ребёнку ВЕСЬ путь монеток: было → +бонус → ×питомец
-                boostLine.innerHTML =
-                    `🪙 ${baseReward} базовых` +
-                    (timeBonus(elapsed) ? ` + ⏱️ ${timeBonus(elapsed)} за скорость` : '') +
-                    ` = <b>${baseReward + timeBonus(elapsed)}</b>` +
-                    ` → ${pet.emoji} <b>${pet.name}</b> (${TIER_NAMES[pet.tier]}) умножил на <b>×${pet.mult.toFixed(1)}</b>` +
-                    ` → <span style="color:#c98a00;font-size:22px;">${earnedCoins} 🪙!</span>`;
-            }
-            else boostLine.style.display = 'none';
+            boostLine.style.display = 'block';
+            // ребёнок ВИДИТ весь путь монеток: база → +скорость → ×питомец
+            boostLine.innerHTML =
+                `🪙 ${baseReward} базовых` +
+                (timeBonus(elapsed) ? ` + ⏱️ ${timeBonus(elapsed)} за скорость` : '') +
+                ` = <b>${baseReward + timeBonus(elapsed)}</b>` +
+                (petMult() > 1 && pet
+                    ? ` → ${petE} <b>${petN}</b> (${petT}) умножил на <b>×${pet.mult.toFixed(1)}</b>`
+                    : ` → ${petE} друг пока не умеет умножать (×1.0) — заведи крутого из яйца!`) +
+                ` → <span style="color:#c98a00;font-size:22px;">${earnedCoins} 🪙!</span>`;
             document.getElementById('time-result').innerHTML =
                 `⏱️ Время: <b>${fmtTime(elapsed)}</b>${recordText}` +
                 `<div class="best-time">🏁 Рекорд урока: ${fmtTime(bestTimes[tKey])}</div>`;
